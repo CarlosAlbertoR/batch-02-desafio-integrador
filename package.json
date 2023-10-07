@@ -3,7 +3,12 @@
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
-    "start": "webpack server --open"
+    "start": "webpack server --open",
+    "deploy-local": "npx hardhat --network localhost run",
+    "deploy-mumbai": "npx hardhat --network mumbai run",
+    "deploy-goerli": "npx hardhat --network goerli run",
+    "verify-mumbai": "npx hardhat --network mumbai verify",
+    "local": "npx hardhat node"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
