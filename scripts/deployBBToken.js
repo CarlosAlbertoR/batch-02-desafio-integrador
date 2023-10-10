@@ -13,9 +13,13 @@ async function main() {
     }
   );
 
-  const tx = await proxyDeploy.waitForDeployment();
-  await tx.deploymentTransaction().wait(5);
-
+  if (
+    !!process.env.HARDHAT_NETWORK &&
+    process.env.HARDHAT_NETWORK != "localhost"
+  ) {
+    const tx = await proxyDeploy.waitForDeployment();
+    await tx.deploymentTransaction().wait(5);
+  }
   const implementationAdd = await upgrades.erc1967.getImplementationAddress(
     await proxyDeploy.getAddress()
   );
@@ -23,11 +27,16 @@ async function main() {
   console.log(`Address del Proxy es: ${await proxyDeploy.getAddress()}`);
   console.log(`Address de Impl es: ${implementationAdd}`);
 
-  // verificación del address de implementación
-  await hre.run("verify:verify", {
-    address: implementationAdd,
-    constructorArguments: [],
-  });
+  if (
+    !!process.env.HARDHAT_NETWORK &&
+    process.env.HARDHAT_NETWORK != "localhost"
+  ) {
+    // verificación del address de implementación
+    await hre.run("verify:verify", {
+      address: implementationAdd,
+      constructorArguments: [],
+    });
+  }
 }
 
 async function upgrade() {
@@ -39,6 +48,13 @@ async function upgrade() {
     BBtokenUpgredableV2
   );
 
+  if (
+    !!process.env.HARDHAT_NETWORK &&
+    process.env.HARDHAT_NETWORK != "localhost"
+  ) {
+    await proxyUpgrade.deployProxy.wait(5);
+  }
+
   const implAddressV2 = await upgrades.erc1967.getImplementationAddress(
     ProxyAddress
   );
@@ -46,10 +62,15 @@ async function upgrade() {
   console.log(`Address Proxy: ${ProxyAddress}`);
   console.log(`Address Impl V2: ${implAddressV2}`);
 
-  await hre.run("verify:verify", {
-    address: implAddressV2,
-    constructorArguments: [],
-  });
+  if (
+    !!process.env.HARDHAT_NETWORK &&
+    process.env.HARDHAT_NETWORK != "localhost"
+  ) {
+    await hre.run("verify:verify", {
+      address: implAddressV2,
+      constructorArguments: [],
+    });
+  }
 }
 
 main().catch((error) => {
