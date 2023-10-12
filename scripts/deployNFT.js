@@ -1,16 +1,19 @@
 const { ethers, upgrades } = require("hardhat");
 
-// Address Contrato Proxy: 0x8d7aADd7093BF0b19cadFE1a820Bd8E98072Ff52
+// Address Contrato Proxy:
 async function main() {
-  const BBtokenUpgredable = await ethers.getContractFactory("BBitesToken");
+  const NFTCollectionUpgredable = await ethers.getContractFactory(
+    "CuyCollectionNft"
+  );
 
+  const NAME_TOKEN = "Cuy collection of Carlos Rios";
+  const SYMBOL_TOKEN = "CCOCR";
   const MINTER_ADDRESS = "0xD0782f189FC222576E1f10cEd595afD752AC5733";
+
   const proxyDeploy = await upgrades.deployProxy(
-    BBtokenUpgredable,
-    [MINTER_ADDRESS],
-    {
-      kind: "uups",
-    }
+    NFTCollectionUpgredable,
+    [NAME_TOKEN, SYMBOL_TOKEN, MINTER_ADDRESS],
+    { kind: "uups" }
   );
 
   if (
@@ -42,11 +45,13 @@ async function main() {
 
 async function upgrade() {
   const ProxyAddress = "0x8d7aADd7093BF0b19cadFE1a820Bd8E98072Ff52";
-  const BBtokenUpgredableV2 = await ethers.getContractFactory("BBitesToken");
+  const NFTCollectionUpgredableV2 = await ethers.getContractFactory(
+    "CuyCollectionNft"
+  );
 
   const proxyUpgrade = await upgrades.upgradeProxy(
     ProxyAddress,
-    BBtokenUpgredableV2
+    NFTCollectionUpgredableV2
   );
 
   if (
