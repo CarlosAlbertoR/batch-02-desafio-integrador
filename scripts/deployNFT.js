@@ -1,6 +1,7 @@
 const { ethers, upgrades } = require("hardhat");
+const { getRootFromMT } = require("../utils/merkleTree");
 
-// Address Contrato Proxy:
+// Address Contrato Proxy: 0x3C8f33556346b99cC876D185BdF18B10f69C2E8A
 async function main() {
   const NFTCollectionUpgredable = await ethers.getContractFactory(
     "CuyCollectionNft"
@@ -44,7 +45,7 @@ async function main() {
 }
 
 async function upgrade() {
-  const ProxyAddress = "0x8d7aADd7093BF0b19cadFE1a820Bd8E98072Ff52";
+  const ProxyAddress = "0x3C8f33556346b99cC876D185BdF18B10f69C2E8A";
   const NFTCollectionUpgredableV2 = await ethers.getContractFactory(
     "CuyCollectionNft"
   );
@@ -77,9 +78,15 @@ async function upgrade() {
       constructorArguments: [],
     });
   }
+
+  // Actualizar raíz del Merkle Tree
+  const merkleTreeRoot = getRootFromMT();
+  console.log("Raíz del árbol: ", merkleTreeRoot);
+  const contractV2 = await NFTCollectionUpgredableV2.attach(ProxyAddress);
+  await contractV2.updateRoot(merkleTreeRoot);
 }
 
-main().catch((error) => {
+upgrade().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });

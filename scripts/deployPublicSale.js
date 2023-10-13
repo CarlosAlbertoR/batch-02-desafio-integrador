@@ -1,13 +1,16 @@
 const { ethers, upgrades } = require("hardhat");
 
-// Address Contrato Proxy: 0x8d7aADd7093BF0b19cadFE1a820Bd8E98072Ff52
+// Address Contrato Proxy:
 async function main() {
-  const BBtokenUpgredable = await ethers.getContractFactory("BBitesToken");
+  const PublicSaleUpgredable = await ethers.getContractFactory("PublicSale");
 
-  const MINTER_ADDRESS = "0xD0782f189FC222576E1f10cEd595afD752AC5733";
+  const BBTOKEN_ADDRESS = "0x827800444B3D5536633FBB305710F4cC80C173b0";
+  const UDSC_ADDRESS = "0xF36280fF71df4e96F19ef9317e6B45B058915531";
+  const UNISWAP_ADDRESS = "0x195250db8E525d40278eC0D7D081FD0B9bC37299";
+
   const proxyDeploy = await upgrades.deployProxy(
-    BBtokenUpgredable,
-    [MINTER_ADDRESS],
+    PublicSaleUpgredable,
+    [BBTOKEN_ADDRESS, UDSC_ADDRESS, UNISWAP_ADDRESS],
     {
       kind: "uups",
     }
@@ -35,33 +38,6 @@ async function main() {
     // verificación del address de implementación
     await hre.run("verify:verify", {
       address: implementationAdd,
-      constructorArguments: [],
-    });
-  }
-}
-
-async function upgrade() {
-  const ProxyAddress = "0x827800444B3D5536633FBB305710F4cC80C173b0";
-  const BBtokenUpgredableV2 = await ethers.getContractFactory("BBitesToken");
-
-  const proxyUpgrade = await upgrades.upgradeProxy(
-    ProxyAddress,
-    BBtokenUpgredableV2
-  );
-
-  const implAddressV2 = await upgrades.erc1967.getImplementationAddress(
-    ProxyAddress
-  );
-
-  console.log(`Address Proxy: ${ProxyAddress}`);
-  console.log(`Address Impl V2: ${implAddressV2}`);
-
-  if (
-    !!process.env.HARDHAT_NETWORK &&
-    process.env.HARDHAT_NETWORK != "localhost"
-  ) {
-    await hre.run("verify:verify", {
-      address: implAddressV2,
       constructorArguments: [],
     });
   }

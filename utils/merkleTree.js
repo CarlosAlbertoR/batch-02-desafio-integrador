@@ -14,7 +14,23 @@ function hashToken(tokenId, account) {
 }
 
 function getRootFromMT() {
-  return "";
+  const hashedData = walletAndIds.map(({ id, address }) =>
+    hashToken(id, address)
+  );
+
+  merkleTree = new MerkleTree(hashedData, keccak256, {
+    sortPairs: true,
+  });
+
+  root = merkleTree.getHexRoot();
+
+  return root;
 }
 
-module.exports = { getRootFromMT };
+function getMerkleProofs(tokenId, address) {
+  const hashedElement = hashToken(tokenId, address);
+  const proofs = merkleTree.getHexProof(hashedElement);
+  return proofs;
+}
+
+module.exports = { getRootFromMT, getMerkleProofs };

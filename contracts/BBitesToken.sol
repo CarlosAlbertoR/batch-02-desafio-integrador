@@ -34,9 +34,10 @@ contract BBitesToken is
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(PAUSER_ROLE, msg.sender);
-        _mint(msg.sender, 1000000 * 10 ** 6);
         _setupRole(MINTER_ROLE, minter);
         _setupRole(UPGRADER_ROLE, msg.sender);
+
+        _mint(msg.sender, 1000000 * 10 ** decimals());
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {

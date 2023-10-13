@@ -121,6 +121,10 @@ contract CuyCollectionNft is
         return MerkleProof.verify(proofs, root, dataHash);
     }
 
+    function updateRoot(bytes32 _root) public onlyRole(UPGRADER_ROLE) {
+        root = _root;
+    }
+
     // The following functions are overrides required by Solidity.
     function _authorizeUpgrade(
         address newImplementation
