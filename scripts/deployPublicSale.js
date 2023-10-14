@@ -1,6 +1,6 @@
 const { ethers, upgrades } = require("hardhat");
 
-// Address Contrato Proxy:
+// Address Contrato Proxy: 0x0836b48784a339BB845A419147959A2b09EF8D3a
 async function main() {
   const PublicSaleUpgredable = await ethers.getContractFactory("PublicSale");
 
