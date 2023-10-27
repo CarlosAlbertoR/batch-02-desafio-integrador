@@ -112,16 +112,18 @@ contract PublicSale is
     ) external validateNFTRange(_id, 0, 699) notMintedBefore(_id) {
         uint256 priceTokenBBTKN = getPriceForId(_id);
         (uint256 reserveBbtkn, uint256 reserveUsdc) = router.getReserves();
-        uint256 amountInBBTKN = router.getAmountIn(
-            _amountIn,
-            reserveUsdc,
-            reserveBbtkn
+
+        uint256 necesaryUSDC = router.getAmountIn(
+            priceTokenBBTKN,
+            reserveBbtkn,
+            reserveUsdc
         );
 
         require(
-            amountInBBTKN >= priceTokenBBTKN,
+            necesaryUSDC <= _amountIn,
             "El valor enviado no es suficiente para comprar este NFT"
         );
+
         // transfiere _amountIn de USDC a este contrato
         require(
             usdcToken.transferFrom(msg.sender, address(this), _amountIn),

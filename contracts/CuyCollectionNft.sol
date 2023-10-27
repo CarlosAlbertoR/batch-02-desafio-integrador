@@ -76,7 +76,7 @@ contract CuyCollectionNft is
             "El destinatario del token debe ser el mismo que el minteador."
         );
         require(
-            tokenId >= 1000 && 1999 <= tokenId,
+            tokenId >= 1000 && tokenId <= 1999,
             "Intentas mintear un NFT que no es elegible en la lista blanca."
         );
         require(

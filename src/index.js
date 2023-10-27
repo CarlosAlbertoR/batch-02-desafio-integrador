@@ -1,17 +1,18 @@
 import { Contract, ethers } from "ethers";
 
 import usdcTknAbi from "../artifacts/contracts/USDCoin.sol/USDCoin.json";
-// import bbitesTokenAbi
-// import publicSaleAbi
-// import nftTknAbi
+import bbitesTokenAbi from "../artifacts/contracts/BBitesToken.sol/BBitesToken.json";
+import publicSaleAbi from "../artifacts/contracts/PublicSale.sol/PublicSale.json";
+import nftTknAbi from "../artifacts/contracts/CuyCollectionNft.sol/CuyCollectionNft.json";
 
 // SUGERENCIA: vuelve a armar el MerkleTree en frontend
 // Utiliza la libreria buffer
 import buffer from "buffer/";
 import walletAndIds from "../wallets/walletList";
 import { MerkleTree } from "merkletreejs";
+
 var Buffer = buffer.Buffer;
-var merkleTree;
+let merkleTree;
 
 function hashToken(tokenId, account) {
   return Buffer.from(
@@ -21,9 +22,12 @@ function hashToken(tokenId, account) {
     "hex"
   );
 }
+
 function buildMerkleTree() {
-  var elementosHasheados;
-  merkleTree = new MerkleTree(elementosHasheados, ethers.keccak256, {
+  const hashedData = walletAndIds.map(({ id, address }) =>
+    hashToken(id, address)
+  );
+  merkleTree = new MerkleTree(hashedData, ethers.keccak256, {
     sortPairs: true,
   });
 }
@@ -35,27 +39,26 @@ var usdcAddress, bbitesTknAdd, pubSContractAdd;
 function initSCsGoerli() {
   provider = new ethers.BrowserProvider(window.ethereum);
 
-  usdcAddress = "";
-  bbitesTknAdd = "";
-  pubSContractAdd = "";
+  usdcAddress = "0xF36280fF71df4e96F19ef9317e6B45B058915531";
+  bbitesTknAdd = "0x827800444B3D5536633FBB305710F4cC80C173b0";
+  pubSContractAdd = "0x0836b48784a339BB845A419147959A2b09EF8D3a";
 
-  usdcTkContract; // = new Contract(...
-  bbitesTknContract; // = new Contract(...
-  pubSContract; // = new Contract(...
+  usdcTkContract = new Contract(usdcAddress, usdcTknAbi.abi, provider);
+  bbitesTknContract = new Contract(bbitesTknAdd, bbitesTokenAbi.abi, provider);
+  pubSContract = new Contract(pubSContractAdd, publicSaleAbi.abi, provider);
 }
 
 function initSCsMumbai() {
   provider = new ethers.BrowserProvider(window.ethereum);
-
-  var nftAddress = "";
-
-  nftContract; // = new Contract(...
+  var nftAddress = "0x3C8f33556346b99cC876D185BdF18B10f69C2E8A";
+  nftContract = new Contract(nftAddress, nftTknAbi.abi, provider);
 }
 
 function setUpListeners() {
   // Connect to Metamask
   var bttn = document.getElementById("connect");
   var walletIdEl = document.getElementById("walletId");
+
   bttn.addEventListener("click", async function () {
     if (window.ethereum) {
       [account] = await ethereum.request({
@@ -63,19 +66,27 @@ function setUpListeners() {
       });
       console.log("Billetera metamask", account);
       walletIdEl.innerHTML = account;
+
+      provider = new ethers.BrowserProvider(window.ethereum);
       signer = await provider.getSigner(account);
     }
   });
 
   // USDC Balance - balanceOf
-  var bttn = document.getElementById("usdcUpdate");
-  bttn.addEventListener("click", async function () {
-    var balance = await usdcTkContract.balanceOf(account);
-    var balanceEl = document.getElementById("usdcBalance");
-    balanceEl.innerHTML = ethers.formatUnits(balance, 6);
+  var updateUSDCBalanceBtn = document.getElementById("usdcUpdate");
+  updateUSDCBalanceBtn.addEventListener("click", async function () {
+    const balanceUSC = await usdcTkContract.balanceOf(account);
+    let balanceUSDCEl = document.getElementById("usdcBalance");
+    balanceUSDCEl.innerHTML = ethers.formatUnits(balanceUSC, 6);
   });
 
   // Bbites token Balance - balanceOf
+  var updateBBTKNBalanceBtn = document.getElementById("bbitesTknUpdate");
+  updateBBTKNBalanceBtn.addEventListener("click", async function () {
+    const balanceBBTKN = await bbitesTknContract.balanceOf(account);
+    let balanceBBTKNEl = document.getElementById("bbitesTknBalance");
+    balanceBBTKNEl.innerHTML = ethers.formatUnits(balanceBBTKN, 18);
+  });
 
   // APPROVE BBTKN
   // bbitesTknContract.approve
@@ -139,14 +150,12 @@ async function setUp() {
   });
 
   initSCsGoerli();
+  initSCsMumbai();
 
-  // initSCsMumbai
-
-  // setUpListeners
-
+  setUpListeners();
   // setUpEventsContracts
 
-  // buildMerkleTree
+  buildMerkleTree();
 }
 
 setUp()
