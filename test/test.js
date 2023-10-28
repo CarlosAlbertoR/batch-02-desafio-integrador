@@ -18,7 +18,7 @@ const UPGRADER_ROLE = getRole("UPGRADER_ROLE");
 // 00 horas del 30 de septiembre del 2023 GMT
 var startDate = 1696032000;
 
-describe("PublicSale", function () {
+describe("BBitesToken", () => {
   let owner;
   let minter;
   let user;
