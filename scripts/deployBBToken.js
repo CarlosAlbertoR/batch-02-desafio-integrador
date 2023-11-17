@@ -44,10 +44,7 @@ async function upgrade() {
   const ProxyAddress = "0x827800444B3D5536633FBB305710F4cC80C173b0";
   const BBtokenUpgredableV2 = await ethers.getContractFactory("BBitesToken");
 
-  const proxyUpgrade = await upgrades.upgradeProxy(
-    ProxyAddress,
-    BBtokenUpgredableV2
-  );
+  await upgrades.upgradeProxy(ProxyAddress, BBtokenUpgredableV2);
 
   const implAddressV2 = await upgrades.erc1967.getImplementationAddress(
     ProxyAddress

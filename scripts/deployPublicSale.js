@@ -43,7 +43,30 @@ async function main() {
   }
 }
 
-main().catch((error) => {
+async function upgrade() {
+  const ProxyAddress = "0x0836b48784a339BB845A419147959A2b09EF8D3a";
+  const PublicSaleUpgredableV2 = await ethers.getContractFactory("PublicSale");
+
+  await upgrades.upgradeProxy(ProxyAddress, PublicSaleUpgredableV2);
+  const implAddressV2 = await upgrades.erc1967.getImplementationAddress(
+    ProxyAddress
+  );
+
+  console.log(`Address Proxy: ${ProxyAddress}`);
+  console.log(`Address Impl V2: ${implAddressV2}`);
+
+  if (
+    !!process.env.HARDHAT_NETWORK &&
+    process.env.HARDHAT_NETWORK != "localhost"
+  ) {
+    await hre.run("verify:verify", {
+      address: implAddressV2,
+      constructorArguments: [],
+    });
+  }
+}
+
+upgrade().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
