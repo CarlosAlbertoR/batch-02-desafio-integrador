@@ -1,8 +1,11 @@
+const { deployMockContract } = require("@ethereum-waffle/mock-contract");
 var { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
+var { time } = require("@nomicfoundation/hardhat-network-helpers");
 var { expect } = require("chai");
 var { ethers, upgrades, network } = require("hardhat");
-var { time } = require("@nomicfoundation/hardhat-network-helpers");
 
+import usdcTknAbi from "../artifacts/contracts/USDCoin.sol/USDCoin.json";
+import bbitesTokenAbi from "../artifacts/contracts/BBitesToken.sol/BBitesToken.json";
 const { getRole, deploySC, deploySCNoUp, ex, pEth } = require("../utils");
 const {
   getRootFromMTForTest,
@@ -23,5 +26,22 @@ describe("BBitesToken", () => {
   let minter;
   let user;
   let contract;
+  let bbTokenMock; // Mock contract for BBToken
+  let usdcTokenMock; // Mock contract for USDC
+  let uniswapRouterMock; // Mock contract for Uniswap Router
   let walletSigners;
+
+  beforeEach(async () => {
+    [owner, minter, user] = await ethers.getSigners();
+
+    // Deploy the mock contracts
+    bbTokenMock = await deployMockContract(owner, bbitesTokenAbi);
+    usdcTokenMock = await deployMockContract(owner, usdcTknAbi);
+    uniswapRouterMock = await deployMockContract(
+      owner,
+      YOUR_UNISWAP_ROUTER_ABI
+    );
+
+    contract = await deploySC("PublicSale", []);
+  });
 });

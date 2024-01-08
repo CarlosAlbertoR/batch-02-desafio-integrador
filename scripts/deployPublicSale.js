@@ -1,12 +1,12 @@
 const { ethers, upgrades } = require("hardhat");
 
+const BBTOKEN_ADDRESS = "0x827800444B3D5536633FBB305710F4cC80C173b0";
+const UDSC_ADDRESS = "0xF36280fF71df4e96F19ef9317e6B45B058915531";
+const UNISWAP_ADDRESS = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
+
 // Address Contrato Proxy: 0x0836b48784a339BB845A419147959A2b09EF8D3a
 async function main() {
   const PublicSaleUpgredable = await ethers.getContractFactory("PublicSale");
-
-  const BBTOKEN_ADDRESS = "0x827800444B3D5536633FBB305710F4cC80C173b0";
-  const UDSC_ADDRESS = "0xF36280fF71df4e96F19ef9317e6B45B058915531";
-  const UNISWAP_ADDRESS = "0x195250db8E525d40278eC0D7D081FD0B9bC37299";
 
   const proxyDeploy = await upgrades.deployProxy(
     PublicSaleUpgredable,
@@ -47,7 +47,11 @@ async function upgrade() {
   const ProxyAddress = "0x0836b48784a339BB845A419147959A2b09EF8D3a";
   const PublicSaleUpgredableV2 = await ethers.getContractFactory("PublicSale");
 
-  await upgrades.upgradeProxy(ProxyAddress, PublicSaleUpgredableV2);
+  await upgrades.upgradeProxy(ProxyAddress, PublicSaleUpgredableV2, [
+    BBTOKEN_ADDRESS,
+    UDSC_ADDRESS,
+    UNISWAP_ADDRESS,
+  ]);
   const implAddressV2 = await upgrades.erc1967.getImplementationAddress(
     ProxyAddress
   );

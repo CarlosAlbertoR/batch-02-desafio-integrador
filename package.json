@@ -7,9 +7,9 @@
     "local": "npx hardhat node",
     "coverage": "npx hardhat coverage",
     "test": "npx hardhat test",
-    "deploy-local": "npx hardhat --network localhost run",
-    "deploy-mumbai": "npx hardhat --network mumbai run",
-    "deploy-goerli": "npx hardhat --network goerli run",
+    "script-local": "npx hardhat --network localhost run",
+    "script-mumbai": "npx hardhat --network mumbai run",
+    "script-goerli": "npx hardhat --network goerli run",
     "verify-mumbai": "npx hardhat --network mumbai verify"
   },
   "devDependencies": {

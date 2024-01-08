@@ -88,15 +88,23 @@ contract PublicSale is
         _;
     }
 
+    modifier validEtherValue() {
+        require(
+            msg.value == 0.01 ether,
+            "Debes depositar 0.01 ETH para comprar este NFT."
+        );
+        _;
+    }
+
     function purchaseWithTokens(
         uint256 _id
     ) public validateNFTRange(_id, 0, 699) notMintedBefore(_id) {
         uint256 priceToken = getPriceForId(_id);
-
         require(
             bbToken.balanceOf(msg.sender) >= priceToken,
             "No tienes suficientes BBTKN para comprar este NFT"
         );
+
         require(
             bbToken.transferFrom(msg.sender, address(this), priceToken),
             "Ha ocurrido un error en la transferencia de BBTKN"
@@ -111,18 +119,6 @@ contract PublicSale is
         uint256 _amountIn
     ) external validateNFTRange(_id, 0, 699) notMintedBefore(_id) {
         uint256 priceTokenBBTKN = getPriceForId(_id);
-        (uint256 reserveBbtkn, uint256 reserveUsdc) = router.getReserves();
-
-        uint256 necesaryUSDC = router.getAmountIn(
-            priceTokenBBTKN,
-            reserveBbtkn,
-            reserveUsdc
-        );
-
-        require(
-            necesaryUSDC <= _amountIn,
-            "El valor enviado no es suficiente para comprar este NFT"
-        );
 
         // transfiere _amountIn de USDC a este contrato
         require(
@@ -130,7 +126,6 @@ contract PublicSale is
             "Ha ocurrido un error en la transferencia de USDC"
         );
 
-        //  approve al router para usar los USDC
         usdcToken.approve(address(router), _amountIn);
 
         //swap USDC a BBTKN
@@ -146,10 +141,12 @@ contract PublicSale is
             block.timestamp + 300
         );
 
+        uint256 usdcExcess = _amountIn - _amounts[0];
+
         // transfiere el excedente de USDC a msg.sender
-        if (_amounts[0] < _amountIn)
+        if (usdcExcess > 0)
             require(
-                usdcToken.transfer(msg.sender, _amountIn - _amounts[0]),
+                usdcToken.transfer(msg.sender, usdcExcess),
                 "Ha ocurrido un error en la devolucion del excedente de USDC"
             );
 
@@ -159,12 +156,13 @@ contract PublicSale is
 
     function purchaseWithEtherAndId(
         uint256 _id
-    ) public payable validateNFTRange(_id, 700, 999) notMintedBefore(_id) {
-        require(
-            msg.value >= 0.01 ether,
-            "La cantidad de ether enviada no es suficiente para comprar este NFT."
-        );
-
+    )
+        public
+        payable
+        validEtherValue
+        validateNFTRange(_id, 700, 999)
+        notMintedBefore(_id)
+    {
         uint256 change = msg.value - 0.01 ether;
         if (change > 0) {
             address payable buyer = payable(msg.sender);
@@ -175,12 +173,7 @@ contract PublicSale is
         emit PurchaseNftWithId(msg.sender, _id);
     }
 
-    function depositEthForARandomNft() public payable {
-        require(
-            msg.value == 0.01 ether,
-            "Debes enviar exactamente 0.01 ether para comprar un NFT aleatorio."
-        );
-
+    function depositEthForARandomNft() public payable validEtherValue {
         uint256 randomNumber;
         bool minted = true;
         while (minted) {
@@ -285,6 +278,20 @@ contract PublicSale is
 
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
+    }
+
+    function getRouterAddress() public view returns (address) {
+        return address(router);
+    }
+
+    function updateRouterAddress(
+        address _newRouterAddress
+    ) external onlyRole(UPGRADER_ROLE) {
+        require(
+            _newRouterAddress != address(0),
+            "La nueva address del router no puede ser cero"
+        );
+        router = IUniSwapV2Router02(_newRouterAddress);
     }
 
     function _authorizeUpgrade(

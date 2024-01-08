@@ -169,7 +169,7 @@ function setUpListeners() {
       purchaseErrorUSDC.textContent = "";
       const idInput = document.getElementById("purchaseInputUSDC").value;
       let amountIn = document.getElementById("amountInUSDCInput").value;
-      amountIn = amountIn.trim() + "000000";
+
       console.log(idInput, amountIn);
       const tx = await pubSContract
         .connect(signer)
